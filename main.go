@@ -39,7 +39,7 @@ func thawContainer(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	names, present := query["name"]
 	if !present || len(names) == 0 {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(418)
 		fmt.Fprintf(w, "name parameter not provided.")
 		return
 	}
@@ -67,8 +67,8 @@ func thawContainer(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		// Start container, add timer
-		w.WriteHeader(http.StatusBadRequest)
-		http.ServeFile(w, r, "/app/pages/loader.html")
+		w.WriteHeader(418)
+		http.ServeFile(w, r, "/app/pages/4.html")
 
 		for i := range containers {
 			containers[i].ResetTimer()

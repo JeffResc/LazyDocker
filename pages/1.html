@@ -2,6 +2,8 @@
 <html>
 
 <head>
+    <!-- https://codepen.io/MattIn4D/pen/DOOGBo -->
+    <title>Loading content...</title>
     <style>
         /* Absolute Center Spinner */
         .loading {
@@ -134,6 +136,16 @@
 
 <body>
     <div class="loading">Loading&#8230;</div>
+    <script>
+        const checkStatus = () => {
+            fetch(location.href).then(response => {
+                if (response.status != 418)
+                    location.reload();
+            });
+        };
+
+        setInterval(checkStatus, 1000);
+    </script>
 </body>
 
 </html>
