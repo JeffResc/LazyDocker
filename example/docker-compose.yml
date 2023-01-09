@@ -1,0 +1,35 @@
+version: "3"
+services:
+  lazydocker:
+    build:
+      context: ./..
+      dockerfile: Dockerfile
+    container_name: LazyDocker
+    ports:
+      - 8080:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - ENABLED=true # Must enable container (required)
+      - DEFAULT_FREEZE_METHOD=stop # Default freeze method if not specified by container. Defaults to stop. (optional)
+      - DEFAULT_TIME_BEFORE_FREEZE=30s # Default time before freeze if not specified by container. Defaults to 1m. (optional)
+      - START_ACTION=freeze # Default start action, valid options: freeze, run. Defaults to freeze. (optional)
+  helloworld:
+    image: boxboat/hello-world-webapp:latest
+    container_name: helloworld
+    environment:
+      - PORT=80
+    labels:
+      - lazydocker.enable=true # Enable LazyDocker for the helloworld container. (required)
+      - lazydocker.freeze-method=stop # Valid options: stop, pause. (required)
+      - lazydocker.time-before-freeze=5s # Override the global freeze time and use 5 seconds instead. (optional)
+      - lazydocker.name=helloworld2 # Override the container name. (optional)
+  caddy:
+    image: caddy:2
+    container_name: Caddy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - $PWD/Caddyfile:/etc/caddy/Caddyfile

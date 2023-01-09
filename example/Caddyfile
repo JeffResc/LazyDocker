@@ -1,0 +1,6 @@
+localhost {
+	forward_auth lazydocker {
+		uri /thaw?name=helloworld2
+	}
+    reverse_proxy helloworld
+}
