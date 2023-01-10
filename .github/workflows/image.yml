@@ -21,11 +21,17 @@ jobs:
         run: |
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
       - name: 🔨 Build the image
+        if: github.ref != 'refs/heads/production'
         run: |
           docker buildx build \
             --tag jeffresc/lazydocker:$(date +%s) \
             --tag jeffresc/lazydocker:latest \
             --platform linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8 .
-      - name: ✈️ Push the image
+      - name: 🔨 Build and push the image
         if: github.ref == 'refs/heads/production'
-        run: docker push ${{secrets.DOCKER_USER}}/lazydocker
+        run: |
+          docker buildx build \
+            --push \
+            --tag jeffresc/lazydocker:$(date +%s) \
+            --tag jeffresc/lazydocker:latest \
+            --platform linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8 .
