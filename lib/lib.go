@@ -28,7 +28,7 @@ func (lc *LazyContainer) ResetTimer() {
 	if lc.Timer == nil {
 		lc.Timer = time.AfterFunc(lc.TimeBeforeFreeze, lc.FreezeContainer)
 	} else {
-		fmt.Printf("[%s] Extending by %s\n", lc.Name, lc.TimeBeforeFreeze)
+		//fmt.Printf("[%s] Extending by %s\n", lc.Name, lc.TimeBeforeFreeze)
 		if !lc.Timer.Stop() {
 			<-lc.Timer.C
 		}

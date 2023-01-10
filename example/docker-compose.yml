@@ -11,6 +11,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - ENABLED=true # Must enable container (required)
+      - STYLE_VARIANT=2 # Style variant 1-12. Defaults to 1. (optional)
       - DEFAULT_FREEZE_METHOD=stop # Default freeze method if not specified by container. Defaults to stop. (optional)
       - DEFAULT_TIME_BEFORE_FREEZE=30s # Default time before freeze if not specified by container. Defaults to 1m. (optional)
       - START_ACTION=freeze # Default start action, valid options: freeze, run. Defaults to freeze. (optional)
@@ -21,7 +22,7 @@ services:
       - PORT=80
     labels:
       - lazydocker.enable=true # Enable LazyDocker for the helloworld container. (required)
-      - lazydocker.freeze-method=stop # Valid options: stop, pause. (required)
+      - lazydocker.freeze-method=pause # Valid options: stop, pause. (optional)
       - lazydocker.time-before-freeze=5s # Override the global freeze time and use 5 seconds instead. (optional)
       - lazydocker.name=helloworld2 # Override the container name. (optional)
   caddy:

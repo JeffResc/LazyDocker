@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -52,7 +53,15 @@ func thawContainer(w http.ResponseWriter, r *http.Request) {
 	for i := range containers {
 		state := lib.GetContainerState(containers[i])
 
-		containersOnline = containersOnline && state.Running
+		switch containers[i].FreezeMethod {
+		case "stop":
+			containersOnline = containersOnline && state.Running
+		case "pause":
+			containersOnline = containersOnline && state.Running && !state.Paused
+		default:
+			fmt.Printf("[%s] freeze method \"%s\" is invalid.\n", containers[i].Name, containers[i].FreezeMethod)
+			return
+		}
 	}
 
 	// Act depending on overall status
@@ -66,10 +75,30 @@ func thawContainer(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	} else {
-		// Start container, add timer
-		w.WriteHeader(418)
-		http.ServeFile(w, r, "/app/pages/4.html")
+		// Set page style
+		var styleVariant int
+		if os.Getenv("STYLE_VARIANT") != "" {
+			i, err := strconv.Atoi(os.Getenv("STYLE_VARIANT"))
+			if err == nil && i >= 1 && i <= 12 {
+				styleVariant = i
+			} else {
+				fmt.Fprintf(w, "Provided STYLE_VARIANT environment variable is invalid. Defaulting to 1.")
+				styleVariant = 1
+			}
+		} else {
+			styleVariant = 1
+		}
 
+		// Write page
+		fileBytes, err := ioutil.ReadFile("/app/pages/" + strconv.Itoa(styleVariant) + ".html")
+		if err != nil {
+			panic(err)
+		}
+
+		w.WriteHeader(418)
+		w.Write(fileBytes)
+
+		// Start container, add timer
 		for i := range containers {
 			containers[i].ResetTimer()
 			containers[i].ThawContainer()
