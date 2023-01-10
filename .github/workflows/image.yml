@@ -1,22 +1,31 @@
-name: build our image
+name: build image
 
-on:
-  push:
-    branches: main
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout code
+      - name: 🛎️ Checkout code
         uses: actions/checkout@v2
-      - name: install buildx
+      - name: ⚙️ Install buildx
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
           version: latest
-      - name: build the image
+      - name: 🔐 Login to Docker
+        if: github.ref == 'refs/heads/production'
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_USER}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+      - name: 🔨 Build the image
         run: |
           docker buildx build \
+            --tag jeffresc/lazydocker:$(date +%s) \
             --tag jeffresc/lazydocker:latest \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8,linux/ppc64le,linux/s390x .
+            --platform linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8 .
+      - name: ✈️ Push the image
+        if: github.ref == 'refs/heads/production'
+        run: docker push ${{secrets.DOCKER_USER}}/lazydocker
